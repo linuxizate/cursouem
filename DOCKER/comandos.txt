@@ -1,0 +1,76 @@
+########################	COMANDOS BASICOS DOCKER		#########################3
+
+CONTENEDORES
+
+docker container mi_comando
+
+create		--> Crear contenedor desde una imagen
+start		--> Start un contendor existente
+run		--> Crar un contenedor nuevo y arrancarlo
+ls		--> lista conternedores arrancados
+inspect		--> Ver toda la informacion de un contenedor
+logs		--> Ver los logs
+stop 		--> Parar un contenedor ordenadamente
+kill		--> Parar un contenedor 
+rm 		--> Borrar un contenedor parado
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+IMAGENES
+
+docker image mi_comando
+
+build		--> Construir una imagen
+push		--> Subir una imagen a un repositorio de dockers
+ls		--> Listar las imagenes 
+history		--> Ver información de la imagen
+inspect		--> Ver toda la información de una imagen
+rm 		--> Borrar una imagen 
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+GENERAL
+
+docker version 		--> Lista info sobre el docker client y la version del servidor
+dokcer login		--> log in en Docker registry
+docker system prune	--> Borrar todos los contenedores, redes e imagenes que no se usan
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+Diferencias entre start, build y run. Ambos terminos parecen iguales, pero en 
+docker cada uno es distinto, lo vemos con ejemplo:
+
+1) Creamos un contendor desde una imagen en mi repositorio:
+
+docker container create mi_repositorio/mi_imagen:mi_tag
+
+2) Una vez tenemos el contenedor creado, lo arrancamos:
+
+docker container start mi_contenedor
+
+3) Crear y arrancar un contenedor desde una imagen
+
+docker container run -d -it -p 8089:80 --name minginx nginx  
+
+	-d detach mode 
+	-i interactive
+	-t tty
+	-p puerto_maquina:puerto_contenedor
+	--name nombre_contenedor
+
+
+4) Ahora podemo parar el contenedor
+
+docker container stop minginx 
+
+5) Y lo podemos arrancar 
+
+docker container start mingnix
+
+
+
+
+
+ 

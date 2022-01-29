@@ -1,0 +1,44 @@
+##########################		VOLUMES		##########################
+
+Los contenedores NO son persistentes, es decir los datos os cambios que hagamos en un contenerdor, 
+cuando su ciclo de vida termina, se pierden.
+
+Para la persistencias de datos (interesante para bases de datos) tenemos los volumenes.
+
+El subcomando de docker volume nos permite gestionar los volumenes:
+
+	docker volume 
+
+1.- Creamos un volumen
+
+	docker volume create my_volume
+
+2.- Listamos los volumenes
+
+	docker volume list
+
+3.- Podemos inspeccionar los volumnes:
+
+	docker volume inspect my_volume
+
+4.- Ahora podemos montar nuestro volumen en un contenedor:
+
+	docker create -P --mount source=my_volume,target=/var/www/html --name docker_name docker_image
+
+	*** lo que hubiese dentro de ese directorio en el contenedor se guardara en el volumen, y cuando 
+	eliminemos el contenedor los datos seguiran existiendo dentro del volumen. Podremos montar además
+	el volumen en otro contenedor y los datos serán persistente. Esto es muy bueno por ejemplo para 
+	actualizar la version de una base de datos. 
+
+5.- Los volumnes tambien se puden borrar, y podemos hacer de dos formas.
+
+	a) Borrar un volumen
+		
+		docker volume rm my_volume
+
+	b) Podemos borrar todas los volumes que no esten en uso:
+
+		docker volume prune
+
+		** Ojo con esto que podemos borrar volumes que nos interesen. 
+

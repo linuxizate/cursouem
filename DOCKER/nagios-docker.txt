@@ -1,0 +1,7 @@
+docker run --name nagios4  \
+  -v /home/jenkins/nagios/etc/:/opt/nagios/etc/ \
+  -v /home/jenkins/nagios/var:/opt/nagios/var/ \
+  -v /home/jenkins/nagios/custom-plugins:/opt/Custom-Nagios-Plugins \
+  -v /home/jenkins/nagios/nagiosgraph-var:/opt/nagiosgraph/var \
+  -v /home/jenkins/nagios/nagiosgraph-etc:/opt/nagiosgraph/etc \
+  -p 0.0.0.0:8888:80 -p 0.0.0.0:5666:5666 jasonrivers/nagios:latest

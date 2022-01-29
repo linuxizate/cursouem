@@ -1,0 +1,15 @@
+upstream nodejs  {
+  server 10.20.1.11:3000 max_fails=3;
+  server 10.20.1.12:3000 max_fails=3;
+}
+
+server {
+  listen 80;
+  server_name  www.myapp.com;
+  location / {
+    proxy_pass  http://nodejs;
+    proxy_set_header  X-Real-IP  $remote_addr;
+    proxy_set_header  Host  $http_host;
+
+  }
+}

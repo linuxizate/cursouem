@@ -1,0 +1,48 @@
+##################################		DEPLOYMENT IN KUBERNETES	###############################
+
+Deployment es un controlador que proporciona actualizaciones declarativas para los pods. Est significa que describimos 
+un estado deseado y el se encarga de que el estado actual sea igual que el deseado, el estado se declara en nuestro 
+manifest. 
+
+Permite hacer actualizaciones, rollback, etc.. sin perdida de servicio. 
+
+Dentro de nuestros manifests tendremos que usar el kind Deployment y luego usar las etiquetas que hemos visto anteriomente.
+
+Para crear un manifest:
+
+	kubectl create deployment my-dep --image=nginx --replicas=3 --dry-run=client -o yaml > deployment.yaml 
+
+	*** de esta forma nos crea un fichero que podemos editar antes de ejecutar el apply o create. 
+
+	kubectl get all 		--> vemos que se ha creado el deployment y un replicaset. 
+					*** Replicaser controla las replicas de los pods. 
+
+	Si actualizamos nuestra version (usando otra imagen), se crea otro replicaset y cuando tiene los pods listos cambia y 
+	actualiza el numero de pods a 0 en el replicaset antiguo, de esta forma no hay perdida del servicio.
+	
+	** Se guardan hasta 10 versiones de Replicaset
+
+
+
+COMANDO ROLLOUT:
+
+Este subcomando nos permite gestionar desde la consola las versiones:
+
+kubectl rollout --help	
+
+Podemos usar:   kubectl rollout history deployment myapp-dep
+
+Para cambiar la verion de nuestra app (cambiar la imagen) podemos modificarlo en el manifest (que es lo recomendable) o podemos
+hacerlo por la linea de comandos:
+
+	kubectl set image deployment myapp-dep myapp=nginx:1.7.9 --record=true    --> donde myapp es el nombre del contenedor y nginx:1.7.9 
+										la imagen, con --record=true estamos grabando los cambios. 
+
+
+Podemos ver el estado del último rollout:
+
+	kubectl rollout status deployment myapp-dep
+
+Para volver a un version anterior de forma rápida:
+
+	kubectl rollout undo deployment myapp-dep

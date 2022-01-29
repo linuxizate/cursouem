@@ -1,0 +1,44 @@
+######################################		LABORATORIO KUBERNETES		##############################3
+
+1.-
+  Crear dos imagenes de docker con muestren un mensaje "Estamos en la WEB01" y otra "Estamos en la WEB02"
+  
+  Subirlas imagenes a vuestro dockerhub. (una imagen la llamais web01:v1 y la otra web02:v2) Podeis usar apache, nginx,
+	lo que querías. 
+  Luego volveis a etiquetar la imagen como latest y las volvéis a subir. web01:latest y web02:latest.
+
+2.-
+  Crear dos namespace, uno lo llamamos web01-nm y otro web02-nm
+
+3.- 
+  Crear dos deployment para cada una de las webes uno en cada namespace.
+
+	- Un deployment se llamará web01-dep y el otro web01-dep
+	- web01-dep estará en el namespace web01-nm y web02-dep en el namespace web02-nm
+        - como imagen usaremos la que hemos subido a nuestro dockerhub con la etiqueta latest
+	- nombre del contenedor:  web01 y web02 
+	- numero de replicas 3 
+
+4.- 
+  Crear dos services, uno para cada uno de las webs, del tipo NodePort. 
+ 	
+	- creamos web01-svc y web02-svc con los nodePort 30001 para web01 y 30002 para el web02
+
+		**** Ojo con las labels.
+
+5.- 
+  Comprobar en vuestros navegadores que podéis acceder a las webs atacando a la IP de vuestro minikube.  
+
+6.- 
+  Hacemos un cambio en el Dockerfile para que las webs nos muestren el mensaje "Estamos en la web01 version 2"
+  Las subimos a nuestro dockerhub con la etiqueta v2 web01:v2 y web02:v2. 
+
+7.- 
+  Modificamos nuestro deployment para desplegar la nueva version de las webs
+
+8.- 
+  Comprobamos que funciona en nuestro navegador.
+
+9.- 
+  Volvemos a la version anterior de nuestras webs y comprobamos. 
+

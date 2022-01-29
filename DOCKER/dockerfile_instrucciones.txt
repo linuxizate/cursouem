@@ -1,0 +1,16 @@
+#############################		DOCKERFILE INSTRUCCIONES	#################################
+
+FROM		--> Especifica la images a usar
+LABEL		--> Provee metadatos 
+USER		--> Es el user que se usa cuando se levante la imagen y para cada RUN, CMD y ENTRYPOINT que se ejecute con la imagen. 
+ENV		--> Sets variables de entorno persistente
+RUN		--> lanza un comando y crea una capa de la imagen. Usado para instalar paquetes
+COPY		--> Copia fichero y directorios al contenedor desde nuestra maquina
+ADD		--> Copia fichero y directorios, tambien hace untar y puede usar urls
+CMD		--> Provee un comando y argumentos para ejecutar en el contenedor, los parametros pueden ser sobreescritos
+			Solo puede haber un CMD en un Dockerfile
+WORKDIRECTORY	--> Sets de working directory para las instrucciones siguientes
+ARG		--> Define variables para pasar al docker cuando se construye
+ENTRYPOINT	--> Provee comando y argumentos para ejecutar en el contenedor. Los argumentos son persistentes
+EXPOSE		--> expone un puerto
+VOLUME		--> Crea un punto de montaje para el acceso y store de datos persistentes

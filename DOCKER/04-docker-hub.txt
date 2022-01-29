@@ -1,0 +1,47 @@
+####################################		CREANDO NUESTRO REPOSITORIO		###############################
+
+https://hub.docker.com
+
+Es un servicio hosteado y gratuito de docker. 
+Permite automatizacion de creacion de imagenes subiendo un Dockerfiles y es compatible con GitHub y Bitbucket.
+
+La versión gratuita nos permite tener solo un repositorio privado, pero hay diferentes planes (billing)
+
+Cada proveedor cloud tiene luego su propio registro de imagenes ECR, GCR, etc.
+Para registrarnos solo nos hará falta un mail, un nombre y una passwd.
+
+Una vez hemos creado nuestra cuenta en docker hub ya podemos subir nuestras imagenes, para ello nos logeamos
+desde la consola:
+
+	docker login 		--> nos pedirá el user y las passwd
+
+Una vez logeados ya podemos subir nuestra imagenes, para ello tenemos que tagearlas con el nombre de nuestra 
+cuenta de docker hub   (cada proveedor cloud tiene su servicio y su manera de funcionar que viene indicada y 
+explicada perfectamente en sus servicios)
+
+
+1) creamos una imagen:
+	
+	docker build -t myweb .
+
+		** Podemos hacer:  docker build -t javiermanzanares/myweb:v1 .    --> de esta forma ya la tageamos. 
+
+2) la tageamos:
+	
+	docker tag myweb javiermanzanares/myweb:v1
+
+3) La subimos a nuesro repo:
+
+	docker push javiermanzanares/myweb:v1 
+
+Ya tenemos la imagen subida a nuestro dockerhub, si entramos por la web veremos nuestra imagen.
+Ahora podemos levantar nuestro contenedor con nuestra imagen, para ello podemos bajarnos la imagen con:
+	
+	docker pull javiermanzanares/myweb:v1 
+	docker images 
+
+o creando el contenedor:
+
+	docker create --name myweb_docker javiermanzanares/myweb:v1 
+
+

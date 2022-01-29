@@ -1,0 +1,10 @@
+####################################		ENV EN DOCKER		#####################
+
+Los sistemas Linux tienen variables de entorno que vemos con el comando env.
+
+Las variables de entorno sirven para que las aplicaciones sean configurables. Podemos pasar 
+la passwd de la base de datos, una URL, el usuario de la base de datos, etc. 
+
+Para pasarle las variables a un contenedor:
+
+	docker create -P -e var1=value1 -e var2=value2 --name envdocker javiermanzanares/myweb:v1 

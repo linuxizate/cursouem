@@ -1,0 +1,72 @@
+########################################		SERVICES 		######################################
+
+
+Cada pod en nuestro cluster va a tener su propia IP, pero esta es dinámica igual que los pods (deployment). Dentro de un 
+deployment además se levantan varios pods que pueden ir subiendo o bajando en fucion de las replicas, y tenemos que poder
+enviarle el tráfico a estos pods. Es por ello que necesitamos los services, que son un elemento de red que se interpone 
+entre el usuario final del servicio y el propio pod. 
+
+Los servicios constan de un nombre DNS y de una IP. Los servicios usan una caracteristicas del core de kubernetes que se 
+llama Autodiscover, el cual es capaz de encontrar un servicio por su nombre sin necesidad de conocer su IP. 
+
+Tenemos tres tipos de services, pero antes vemos como es un servicio:
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: my-app
+  name: my-service
+spec:
+  ports:
+  - name: webports
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: web
+    env: pre
+  type: ClusterIP
+
+
+Ahora vemos los tres tipos de servicos que existen:
+
+1) ClusterIP:  Nos sirve para exponer un conjunto de pods y que se pueda llegar a ellos en conjunto desde dentro del 
+cluster. Si ponemos este tipo de service delante de un deployment, replicaset, etc.. nos va a balancear el tráfico a los 
+pods dentro de ese deployment.  Tráfico se envía al servicio y este es el que balancea al resto de los pods (segun el 
+selector)
+
+	*** ClusterIP es solo accesible desde dentro. 
+	
+	kubectl create -f clusterIP-svc.yaml
+	
+	kubectl get services
+
+Nos conectamos a un pod dentro del cluster:
+
+	kubectl exec -it pod/podwithlabels -- bash.
+		curl 10.108.167.32 
+		curl nombre_service:port  --> curl my-service:80     *** Esto funciona dentro de un pod, no dentro de un server
+									del cluster. (la resolución del nombre)
+
+
+2) NodePort:	Nos permite exponer un puerto de uno de los nodos del cluster. Es decir nos permite acceder desde fuera del cluster. 
+		atacando a la IP de uno de los nodos. 
+
+	kubectl apply -f NodePort-svc.yaml 
+
+	kubectl get services
+
+Vemos que se ha mapeado un port de uno de los nodos (en minikube solo tenemos un nodo) con el port de los pods 80
+Tendremos que ver la IP del nodo:
+	minikube ip 
+
+	curl minikube_ip:port
+
+	**** Puedes tener delante del cluster un balanceador (nginx o HAProxy) que redirija el tráfico a esa IP:Port
+	*** Ojo! porque el puerto cambia si eliminas el servicio. Para que esto no pase podemos usar dentro de nuestro 
+	manifest la instrucción nodePort. 
+
+3) LoadBalancer: Este tipo de servico solo funciona si estamos usando un proveedor cloud, no podemos verlo funcionar. Pero
+para que sepais que existe. Levanta un balanceador de carga en el cloud a traves del cual accedermos a nuestras aplicaciones, 
+nos daría un endpoint y solo tendríamos que atacar a ese endpoint. 

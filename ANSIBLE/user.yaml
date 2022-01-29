@@ -1,0 +1,12 @@
+---
+- hosts: all
+  tasks:
+          - name: creacion de usuario sistemas
+            user:
+                    name: sistemas
+                    password: $6$ObARBbvdtRnv$3NgVZ1nmBabfNTYFga1Wlvp7FnrYp9ZRcaa.XJonRKQnmNFcHEjMnfsggldn4ip2NvsOOWu2rqCyLMcncaZGi.
+                    comment: sistemas
+                    shell: /bin/bash
+                    uid: 1040
+                    groups: adm,sudo
+...

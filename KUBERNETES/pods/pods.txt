@@ -1,0 +1,31 @@
+###########################################		PODS		#######################################
+
+# Para lanzar un pod por la linea de comandos:
+
+	kubectl run mypod --image=nginx 
+
+# Para lanzar un pod mediante un manifests:
+
+	kubectl create -f manifest.yaml
+
+# Para crear un yaml como plantilla para poder editarlo y desplegarlo:
+
+	kubectl run mypod --image=nginx --dry-run=client -o yaml > pod.yaml 
+
+	kubectl create -f pod.yaml
+
+
+# Para poder ver las caracteristicas de un pod:
+
+	kubectl describe pod pod_name 
+
+
+# Para eliminar un pod, podemos hacerlo de forma manual o mediante nuestro manifest:
+
+	- manual: kubectl delete pod pod_name
+	- manifest: kubectl delete -f pod.yaml
+
+		*** Siempre que despleguemos mediante un manifest deberiamos de usar 
+		el manifest para eliminar los objetos deplegados. 
+
+

@@ -1,0 +1,63 @@
+#####################################		DOCKER NETWORKS		##################################
+
+Es un subsistemas de red que tiene docker, está basado en drivers, y permite que terceros programen drivers 
+que pueden dar funcionalidades de red a dockers. 
+
+Existen una serie de drivers por defecto.
+
+	docker network ls
+
+Tenemos tres driver:
+
+	bridge: es la que se usa por defecto, los docker que creemos obtienen la IP de este driver y se 
+	pueden comunicar entre ellos y entre nuestro host y estos contenedores. 
+
+	host: los contenedores que se levanten en ese driver obtienen una IP real, eliminando la aislacion 
+	entre la red real y la red interna que existe entre los contenedores y el host anfitrion. 
+
+	null: nos levanta un contenedor sin conexión a internet. Prectico si solo queremos correr un script
+	y por seguridad no queremos que salga fuera. 
+
+Ahora vamos a crear nuestra propia red.
+
+	docker network 		--> nos muestra las opciones del subcomando.
+
+	docker network create web --driver bridge 
+
+Si creamos dos subredes y luego las inspeccionamos veremos que nos crean dos subredes.
+
+	docker network create web02 --driver bridge
+	docker network create web02 --driver bridge
+
+	docker network ls
+
+	docker network inspect web01
+	docker network inspect web02 
+
+Ahora podemos crear contenedores dentro de cada una de las redes:
+
+	docker create --name web01 --network web01 nginx
+	docker create --name web02 --network web02 nginx
+
+	** Estos contenedores no se veran entre ellos porque están en diferentes redes. 
+	Podemos ver las IPs con docker inspect web01 y web02 
+
+	Podemos probar esto si nos conectamos a cada uno de los contenedores y usamos curl vemos que si ponemos la IP del 
+	otro no llegamos, pero desde nuestro host si que podremos. 
+
+Para poder eliminar una subred:
+
+	docker network rm web01 web02 
+
+También podemos añadir un contenedor a una red con connect, podriamos crear un contenedor y conectarlo:
+
+	1) docker create --name web03 nginx 
+	2) docker network create my_net --driver bridge
+	3) docker network connect my_net web03 
+	4) docker inspect web03 | grep -i ipaddress 
+
+	** Este contenedor web03 estará en dos subredes. 
+
+	5) docker network disconnect my_net web03 
+
+	

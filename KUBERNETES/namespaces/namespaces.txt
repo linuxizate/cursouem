@@ -1,0 +1,68 @@
+########################################		NAMESPACES IN K8S	#######################################
+
+Nos permiten organizar nuestros recursos en diferentes namespace. 
+Cada recurso se crea en un namespace diferente, de esta forma nos permite aislar los recursos y dar permisos a usuarios
+diferentes, definir politicas de recursos, etc. 
+
+No puede haber dos recursos que se llamen igual dentro de un mismo namespace, pero si fuera, es decir en distintos namespace
+
+Podemos ver los namespace que tenemos corriendo en nuestro cluster:
+
+	kubectl get namespace 
+
+	*** Siempre vamos a tener default y kube-system 
+	*** Si no expecificamos nada, siempre se utiliza el default. 
+
+Para ver los recursos que tenemos desplegados en un namespace especifico:
+
+	kubectl get all -n kube-system 
+
+Para ver todos los pods que tenemos en el cluster:
+
+	kubectl get pods -A
+
+No todos los objetos o recursos van dentro de un namespace, para ver lo que si o no, podemos lanzar:
+
+	kubectl api-resources
+
+NAME                              SHORTNAMES   APIVERSION                             NAMESPACED   KIND
+bindings                                       v1                                     true         Binding
+componentstatuses                 cs           v1                                     false        ComponentStatus
+configmaps                        cm           v1                                     true         ConfigMap
+endpoints                         ep           v1                                     true         Endpoints
+events                            ev           v1                                     true         Event
+limitranges                       limits       v1                                     true         LimitRange
+namespaces                        ns           v1                                     false        Namespace
+
+
+Para crear un namespace, podemos hacerlo directamente en la consola:
+
+	kubectl create namespace pruebas
+
+O podemos crearlo con un manifest:
+
+        kubectl create namespace pruebas --dry-run=client -o yaml > pruebas-ns.yaml
+
+Editamos nuestro manifest y luego apply o create.
+
+
+Para crear un recurso (deployment, pod, service, etc) en un namespace en concreto, podemos definirlo en los metadatos de recurso
+o lanzarlo así:
+
+	kubectl apply -f deployment.yaml -n prueba
+
+
+
+SI BORRAMOS UN NAMESPACE, BORRAMOS TODO LOS OBJETOS, RECURSOS, TODO LO QUE HAYA DENTRO!!
+
+Para eliminiar un namespace:
+
+	kubectl delete namespace prueba
+
+	**** OJO!! no pide confirmacion ni nada y lo borramos todo. 
+
+
+	
+
+
+

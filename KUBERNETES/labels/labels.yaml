@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    name: podwithlabels
+    app: web
+    env: pre
+  name: podwithlabels
+spec:
+  containers:
+  - image: nginx:latest
+    name: podwithlabels

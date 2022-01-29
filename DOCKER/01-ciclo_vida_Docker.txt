@@ -1,0 +1,43 @@
+######################		CICLO DE VIDA DE UN DOCKER	##############################
+
+1.- Creamos un Dockerfile para crear una imagen 
+2.- Creamos la imagen a partir del Dockerfile que hemos creado.  
+
+	docker build -t image_name .  # Tendremos que pasarle la ruta donde está el Dockerfile
+
+3.- Ahora podemos subir nuestra imagen a nuestro docker hub, para ello tenemos que etiquetarla:
+
+	docker login
+	docker tag image_name:latest midockerhub/image_name:latest
+	docker push midockerhub/image_name:latest
+
+3.- Creamos un contenedor con la imagen que hemos creado. 
+
+	docker create --name docker_name midockerhub/image_name:latest		--> aqui tenemos que ver las opciones volume, -P, -p, etc.
+
+	docker run -d -P --name docker_name image_name 				--> aquí otra forma de levantar un docker directamente.
+		
+		*** Para ver los port que se usan con -P cat /proc/sys/net/ipv4/ip_local_port_range
+
+4.- Arrancamos nuestro contenedor
+
+	docker start docker_name 
+
+5.- Inspeccionamos el docker
+
+	docker inspect docker_name 
+
+	docker exec -it docker_name bash 
+	docker exec docker_name df -h
+
+6.- Eliminar un contenedor
+
+	docker rm docker_name    		--> con -f si el contenedor esta corriendo
+
+		*** Si borramos un contenedor perdemos los cambios que hayamos hecho en él. 
+
+7.- Eliminar una imagen
+
+	docker rmi image_name
+
+	

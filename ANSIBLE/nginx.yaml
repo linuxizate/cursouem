@@ -1,0 +1,28 @@
+---
+- name: Nginx install
+  hosts: balanceadores
+  tasks:
+          - name: install nginx LB
+            apt: 
+              name: nginx
+              update_cache: yes
+              state: latest
+
+          - name: myapp nginx config
+            copy:
+                    src: myapp
+                    dest: /etc/nginx/sites-available/myapp
+
+          - name: Enable new site
+            file:
+                    src: /etc/nginx/sites-available/myapp
+                    dest: /etc/nginx/sites-enabled/myapp
+                    state: link
+            notify: Restart Nginx
+
+  handlers:
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted
+...

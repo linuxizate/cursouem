@@ -1,0 +1,22 @@
+#####################################		LABELS AND SELECTORS		###########################
+
+Dentro de los objetos podemos definir etiquetas que luego podemos usar. Estas etiquetas irean dentro de los
+metadatos que definimos dentro de nuestros manifests. 
+
+Podemos usar las etiquetas para seleccionar los objetos que tienen dichas etiquetas, esto lo podemos nosotros
+desde la linea de comandos u otros objetos de forma interna (como los servicios).
+
+Ver labels.ymal 
+
+Para ver las etiquetas de un pod:
+
+	kubectl get pod pod_name --show-labels
+
+
+
+Los selectors nos perminten hacer referencia a un objeto a través de sus etiquetas.
+
+	kubectl get pods --selector env=pre 
+	kubectl get pods --show-labels -l env 		---> esto nos devuelve cualquier pod con la etiqueta env
+
+
