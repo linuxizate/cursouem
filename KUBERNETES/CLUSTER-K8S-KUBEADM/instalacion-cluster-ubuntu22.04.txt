@@ -1,0 +1,204 @@
+##########################################		INSTALACION CLUSTER KUBERBETES UBUNTU 22.04		##################################3
+
+
+1.- PREPARACION DEL ENTORNO (CONFIGURACIÓN DE SERVIDORES):
+
+# Kubernetes requeriere que los módulos del kernel "overlay" y "br_netfilter" estén habilitados en todos los servidores.
+# Esto permitirá que iptbales vea el tráfico puenteado. Además, deberá habilitar el reenvío de puertos y deshabilitar SWAP.
+
+# Ejecute el siguiente comando para habilitar los módulos del núcleo "overlay" y "br_netfilter".
+
+sudo modprobe overlay
+sudo modprobe br_netfilter
+
+# Para hacerlo permanente, cree el archivo de configuración en "/etc/modules-load.d/k8s.conf". 
+# Esto permitirá que los sistemas Linux habiliten los módulos del kernel durante el arranque del sistema.
+
+cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+overlay
+br_netfilter
+EOF
+
+# A continuación, cree los parámetros systemctl necesarios con el siguiente comando.
+
+cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables  = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward                 = 1
+EOF
+
+# Para aplicar la nueva configuración de sysctl sin reiniciar, use el siguiente comando. 
+# Debe obtener la lista de parámetros sysctl predeterminados en su sistema y asegurarse de obtener los parámetros sysctl que acaba de agregar en el archivo "k8s.conf".
+
+sudo sysctl --system
+
+# Para deshabilitar SWAP, deberá comentar la configuración de SWAP en el archivo "/etc/fstab". 
+# Esto se puede hacer usando el comando único a través de sed (editor de flujo) o editando manualmente el archivo /etc/fstab.
+
+sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+
+# Ahora apague el SWAP en la sesión actual usando el siguiente comando. Luego, verifique que el SWAP esté apagado usando el comando "free -m". 
+# Debería ver que el SWAP tiene valores "0", lo que significa que ahora está deshabilitado.
+
+sudo swapoff -a
+free -m
+
+
+2.- INSTALACIÓN DE CRI CONTAINERD:
+
+# Instalación de Container Runtime: Containerd
+
+# Para configurar el clúster de Kubernetes, debe instalar el tiempo de ejecución del contenedor en todos los servidores para que se puedan ejecutar los pods. 
+# Se pueden usar varios tiempos de ejecución de contenedores para Kubernetes, como containerd, CRI-O, Mirantis Container Runtime y Docker Engine (a través de cri-dockerd).
+# Nosotros usaremos Containerd 
+# Hay varias formas de instalar containerd, la forma más fácil es usar paquetes binarios preconstruidos proporcionados por el repositorio de Docker.
+
+# Ahora ejecute el siguiente comando para agregar el repositorio de Docker y la clave GPG.
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker.gpg
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+sudo apt update
+
+# Ahora instale el paquete containerd:
+
+sudo apt install containerd.io -y
+
+# Una vez finalizada la instalación, ejecute el siguiente comando para detener el servicio containerd.
+
+sudo systemctl stop containerd
+
+# Realice una copia de seguridad de la configuración predeterminada del contenedor y genere una nueva usando el siguiente comando.
+
+sudo mv /etc/containerd/config.toml /etc/containerd/config.toml.orig
+sudo containerd config default > /etc/containerd/config.toml
+
+# Ahora modifique el archivo de configuración de containerd "/etc/containerd/config.toml" usando el siguiente comando.
+
+sudo vi /etc/containerd/config.toml
+
+# Cambie el valor del controlador cgroup "SystemdCgroup = falso" a "SystemdCgroup = true". 
+# Esto habilitará el controlador systemd cgroup para el tiempo de ejecución del contenedor containerd.
+
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+  ...
+  [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+    SystemdCgroup = true
+
+# Cuando haya terminado, guarde y cierre el archivo.
+
+# A continuación, ejecute el siguiente comando systemctl para iniciar el servicio containerd.
+
+sudo systemctl start containerd
+
+# Por último, verifique y verifique el servicio containerd usando el siguiente comando. 
+# Debería ver que el contenedor está habilitado y se ejecutará automáticamente al iniciar el sistema. 
+# Y el estado actual del servicio containerd se está ejecutando.
+
+sudo systemctl is-enabled containerd
+sudo systemctl status containerd
+
+
+3.- INSTALACIÓN DE KUBERNETES (KUBEADN, KUBELET Y KUBECTL)
+
+# Instalación del paquete Kubernetes
+
+# Ahora instalará paquetes de Kubernetes en todos sus sistemas Ubuntu. 
+# Esto incluye kubeadm para arrancar el clúster de Kubernetes, kubelet, el componente principal del clúster de Kubernetes, y kubectl, la utilidad de línea de comandos para administrar el clúster de Kubernetes.
+# instalaremos paquetes de Kubernetes utilizando el repositorio proporcionado por Kubernetes. Entonces, agregará el repositorio de Kubernetes a todos sus sistemas ubuntu.
+
+# Ejecute el siguiente comando apt para instalar algunas dependencias de paquetes.
+
+sudo apt install apt-transport-https ca-certificates curl -y
+
+# Ahora agregue el repositorio de Kubernetes y la clave GPG usando el siguiente comando.
+
+sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+sudo apt update
+
+# Instale los paquetes de Kubernetes con el siguiente comando apt.
+# Primero vemos las versiones:
+
+apt list -a kubeadm
+
+# Instalmos la version 1.24 que es la mas etable actualmente.
+
+sudo apt install -y kubelet=1.24.0-00 kubeadm=1.24.0-00 kubectl=1.24.0-00
+
+# Una vez finalizada la instalación, ejecute el siguiente comando para anclar la versión actual de los paquetes de Kubernetes. 
+# Esto evitará que los paquetes de Kubernetes se actualicen automáticamente y evitará que la versión se sesgue entre los paquetes de Kubernetes.
+
+sudo apt-mark hold kubelet kubeadm kubectl
+
+
+
+4.- DESPLEGANDO EL CLUSTER CON KUBEADM
+
+# ejecute el siguiente comando "kubeadm init" para inicializar el clúster de Kubernetes en el servidor "master1". 
+# Este nodo "master1" se seleccionará automáticamente como el plano de control de Kubernetes porque es la primera vez que inicializa el clúster.
+
+sudo kubeadm init
+
+# Espera unos minutos a que termine. Una inicialización exitosa producirá una salida similar a esta:
+
+Your Kubernetes control-plane has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+Alternatively, if you are the root user, you can run:
+
+  export KUBECONFIG=/etc/kubernetes/admin.conf
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+Then you can join any number of worker nodes by running the following on each as root:
+
+kubeadm join 102.130.122.165:6443 --token uh9zuw.gy0m40a90sd4o3kl \
+        --discovery-token-ca-cert-hash sha256:24490dd585768bc80eb9943432d6beadb3
+
+
+# Copie el comando kubeadm join del final de la salida y guárdelo en un lugar seguro.
+# Usaremos este comando más adelante para permitir que los nodos workers se unan al clúster.
+
+# Si olvida copiar el comando o ya no puede encontrarlo, puede regenerarlo usando el siguiente comando:
+
+sudo kubeadm token create --print-join-command
+
+# Crear directorio
+# También indicado por el resultado anterior, necesitamos crear un directorio y cambiar su propietario.
+# Ejecute estos comandos:
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+# Implementar la red de pods en el clúster
+# A continuación, debemos implementar una red de módulos en nuestro clúster.
+
+curl https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/calico.yaml -O
+kubectl apply -f calico.yaml
+
+# Ahora añadir los worker al cluster, para ello tenemos que usar el comando que nos ha generado al inicializar el cluster.
+# Nos conectamos al worker que queremos añadir y ejecutamos:
+
+kubeadm join 102.130.122.165:6443 --token uh9zuw.gy0m40a90sd4o3kl \
+        --discovery-token-ca-cert-hash sha256:24490dd585768bc80eb9943432d6beadb3
+
+# Para etiquetar los nodos worker como worker:
+
+kubectl label node worker1 node-role.kubernetes.io/worker=worker
+
+# Quitar label:
+kubectl label node worker1 node-role.kubernetes.io/worker=""
+
+
